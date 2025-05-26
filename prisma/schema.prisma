@@ -1,0 +1,63 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  UserID   String   @id @default(uuid())
+  Role     Int
+  EMail    String   @unique
+  Password String
+  Salt     String
+
+  reviewsCreated  Review[] @relation("ReviewOwner")
+  reviewsReceived Review[] @relation("ReviewReceiver")
+}
+
+model Review {
+  ReviewID     String   @id @default(uuid()) 
+  FKReceiverId String
+  FKOwnerId    String
+
+  receiver User @relation("ReviewReceiver", fields: [FKReceiverId], references: [UserID])
+  owner    User @relation("ReviewOwner", fields: [FKOwnerId], references: [UserID])
+
+  ratings Rating[]
+}
+
+model Rating {
+  RatingID      String   @id @default(uuid())
+  Rating        Int
+  FKReviewId    String
+  FKAspectId    String
+
+  review Review @relation(fields: [FKReviewId], references: [ReviewID])
+  aspect Aspect @relation(fields: [FKAspectId], references: [AspectID])
+}
+
+model Aspect {
+  AspectID    String   @id @default(uuid())
+  Name        String
+  Description String
+
+  ratings Rating[]
+}
+
+model LoginAttempt {
+  id          String    @id @default(cuid())
+  username    String
+  ip          String
+  attempts    Int       @default(0)
+  lastAttempt DateTime?
+  lockedUntil DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([username, ip])
+}

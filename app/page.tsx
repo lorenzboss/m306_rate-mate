@@ -1,10 +1,12 @@
 export default function Home() {
   return (
-    <div className="place-items-center p-8 text-center sm:p-20 sm:text-left">
-      <h1 className="m-8 text-4xl font-bold">Welcome to Next.js!</h1>
-      <p className="mt-4 text-lg">
-        Get started by editing <code className="font-mono">app/page.tsx</code>
-      </p>
+    <div className="flex h-[80vh] items-center justify-center gap-10">
+      <div className="size-96 rounded-xl border-4 border-slate-200">
+        My created reviews
+      </div>
+      <div className="size-96 rounded-xl border-4 border-slate-200">
+        My reviews
+      </div>
     </div>
   );
 }

@@ -1,36 +1,54 @@
+import { User } from "lucide-react";
 import Link from "next/link";
 
 export default function Header() {
   const isAdmin = true; // Replace with logic
   return (
-    <header className="m-4 flex h-16 items-center justify-between rounded-full border-2 border-slate-200 px-5 shadow-md">
-      <div className="flex items-center gap-5">
-        <Link
-          href="/"
-          className="size-18 transition-all duration-300 hover:scale-110"
-        >
-          <img src="icons/home.png" alt="R8M8 Logo" />
-        </Link>
-        <Link
-          href="/review/create"
-          className="font-semibold transition-all duration-300 hover:scale-105"
-        >
-          Create Review
-        </Link>
-        <Link
-          href="/analytics"
-          className={`${!isAdmin && "hidden"} font-semibold transition-all duration-300 hover:scale-105`}
-        >
-          Analytics (Admin only)
-        </Link>
-      </div>
-      <div className="flex items-center">
-        <Link
-          href="/users"
-          className={`${!isAdmin && "hidden"} font-semibold transition-all duration-300 hover:scale-105`}
-        >
-          User Management (Admin only)
-        </Link>
+    <header className="flex h-20 items-center justify-center">
+      <div
+        className={`${isAdmin ? "w-1/3" : "w-1/6"} flex h-14 items-center justify-between rounded-full border-2 border-slate-200 px-5 shadow-md`}
+      >
+        <div className="flex items-center gap-5">
+          <Link
+            href="/"
+            className="size-18 transition-all duration-300 hover:scale-110"
+          >
+            <img src="icons/home.png" alt="R8M8 Logo" />
+          </Link>
+          {isAdmin && (
+            <Link
+              href="/review/create"
+              className="font-semibold transition-all duration-300 hover:scale-105 hover:text-violet-500"
+            >
+              Create Review
+            </Link>
+          )}
+          {isAdmin && (
+            <Link
+              href="/analytics"
+              className="font-semibold transition-all duration-300 hover:scale-105 hover:text-violet-500"
+            >
+              Analytics
+            </Link>
+          )}
+        </div>
+        <div className="mr-2 flex items-center">
+          {isAdmin ? (
+            <Link
+              href="/users"
+              className="transition-all duration-300 hover:scale-115"
+            >
+              <User className="hover:text-violet-500" />
+            </Link>
+          ) : (
+            <Link
+              href="/review/create"
+              className="font-semibold transition-all duration-300 hover:scale-105 hover:text-violet-500"
+            >
+              Create Review
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

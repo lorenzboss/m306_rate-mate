@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcrypt";
-import { db } from "./db"; 
+import { db } from "./db";
 import { Console } from "console";
 
 const pepper = process.env.PEPPER_SECRET || "";
@@ -41,7 +41,11 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "jsmith@example.com" },
+        email: {
+          label: "Email",
+          type: "text",
+          placeholder: "jsmith@example.com",
+        },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
@@ -50,9 +54,6 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          console.log("Submitting login with",  credentials.email );
-          console.log("Submitting login with",  credentials.password );
-
           const existingUser = await db.user.findUnique({
             where: { EMail: credentials.email },
           });
@@ -69,17 +70,13 @@ export const authOptions: NextAuthOptions = {
 
           const passwordMatch = await bcrypt.compare(
             credentials.password + pepper,
-            existingUser.Password
+            existingUser.Password,
           );
 
-          console.log(pepper)
-          console.log(existingUser.Salt)
           if (!passwordMatch) {
-            console.log("password not correct")
             await trackFailedAttempt(credentials.email, req);
             return null;
           }
-          console.log("password correct")
 
           await resetFailedAttempts(credentials.email, req);
 
@@ -120,9 +117,10 @@ export const authOptions: NextAuthOptions = {
   },
 };
 async function trackFailedAttempt(email: string, req: any) {
-  const ip = req.headers?.["x-forwarded-for"]?.split(",")[0] ||
-             req.socket?.remoteAddress ||
-             "unknown";
+  const ip =
+    req.headers?.["x-forwarded-for"]?.split(",")[0] ||
+    req.socket?.remoteAddress ||
+    "unknown";
 
   try {
     const existingAttempt = await db.loginAttempt.findFirst({
@@ -135,8 +133,10 @@ async function trackFailedAttempt(email: string, req: any) {
     const now = new Date();
 
     if (existingAttempt) {
-      const resetAttempts = existingAttempt.lastAttempt &&
-        (now.getTime() - existingAttempt.lastAttempt.getTime() > 24 * 60 * 60 * 1000);
+      const resetAttempts =
+        existingAttempt.lastAttempt &&
+        now.getTime() - existingAttempt.lastAttempt.getTime() >
+          24 * 60 * 60 * 1000;
 
       const newAttemptCount = resetAttempts ? 1 : existingAttempt.attempts + 1;
 
@@ -170,9 +170,10 @@ async function trackFailedAttempt(email: string, req: any) {
 }
 
 async function checkLockout(email: string, req: any): Promise<boolean> {
-  const ip = req.headers?.["x-forwarded-for"]?.split(",")[0] ||
-             req.socket?.remoteAddress ||
-             "unknown";
+  const ip =
+    req.headers?.["x-forwarded-for"]?.split(",")[0] ||
+    req.socket?.remoteAddress ||
+    "unknown";
 
   try {
     const loginAttempt = await db.loginAttempt.findFirst({
@@ -202,9 +203,10 @@ async function checkLockout(email: string, req: any): Promise<boolean> {
 }
 
 async function resetFailedAttempts(email: string, req: any) {
-  const ip = req.headers?.["x-forwarded-for"]?.split(",")[0] ||
-             req.socket?.remoteAddress ||
-             "unknown";
+  const ip =
+    req.headers?.["x-forwarded-for"]?.split(",")[0] ||
+    req.socket?.remoteAddress ||
+    "unknown";
 
   try {
     const loginAttempt = await db.loginAttempt.findFirst({

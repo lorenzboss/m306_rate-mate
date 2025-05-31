@@ -19,9 +19,9 @@ export default function Footer() {
       <div className="h-2 w-full bg-linear-to-t from-slate-200 to-slate-100" />
       <p className="mb-6 flex w-1/2 flex-row justify-evenly xl:w-1/3">
         Authors
-        {authors.map((author) => (
+        {authors.map((author, index) => (
           <a
-            key={author.github}
+            key={index}
             href={author.github}
             target="_blank"
             className="font-bold transition-all duration-300 hover:text-violet-500"

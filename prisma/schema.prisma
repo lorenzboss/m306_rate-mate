@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,9 +8,9 @@ datasource db {
 }
 
 model User {
-  UserID   String   @id @default(uuid())
+  UserID   String @id @default(uuid())
   Role     Int
-  EMail    String   @unique
+  EMail    String @unique
   Password String
   Salt     String
 
@@ -21,7 +19,7 @@ model User {
 }
 
 model Review {
-  ReviewID     String   @id @default(uuid()) 
+  ReviewID     String @id @default(uuid())
   FKReceiverId String
   FKOwnerId    String
 
@@ -32,17 +30,17 @@ model Review {
 }
 
 model Rating {
-  RatingID      String   @id @default(uuid())
-  Rating        Int
-  FKReviewId    String
-  FKAspectId    String
+  RatingID   String @id @default(uuid())
+  Rating     Int
+  FKReviewId String
+  FKAspectId String
 
   review Review @relation(fields: [FKReviewId], references: [ReviewID])
   aspect Aspect @relation(fields: [FKAspectId], references: [AspectID])
 }
 
 model Aspect {
-  AspectID    String   @id @default(uuid())
+  AspectID    String @id @default(uuid())
   Name        String
   Description String
 

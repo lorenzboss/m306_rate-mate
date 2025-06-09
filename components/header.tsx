@@ -1,8 +1,11 @@
+import { requireSession } from "@/lib/session";
 import { User } from "lucide-react";
 import Link from "next/link";
 
-export default function Header() {
-  const isAdmin = true; // Replace with logic
+export default async function Header() {
+  const session = await requireSession();
+
+  const isAdmin = session?.user?.role === 2; // Replace with logic
   return (
     <header className="flex h-20 items-center justify-center">
       <div

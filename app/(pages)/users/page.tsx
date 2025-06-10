@@ -20,7 +20,7 @@ export default function UsersPage() {
       .then(async (res) => {
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || "Fehler beim Laden");
+          throw new Error(data.error || "Error Loading");
         }
         return res.json();
       })
@@ -29,7 +29,7 @@ export default function UsersPage() {
   }, []);
 
   const handleDelete = async (userId: string) => {
-    if (!confirm("Benutzer wirklich löschen?")) return;
+    if (!confirm("Are you sure to delete user?")) return;
 
     const res = await fetch(`/api/user/${userId}`, {
       method: "DELETE",
@@ -38,14 +38,14 @@ export default function UsersPage() {
       setUsers((prev) => prev.filter((user) => user.UserID !== userId));
     } else {
       const data = await res.json();
-      setError(data.error || "Löschen fehlgeschlagen");
+      setError(data.error || "Failed to delete");
     }
   };
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl p-8">
       <h1 className="mb-8 border-b border-gray-300 pb-3 text-3xl font-extrabold text-gray-900">
-        Alle Benutzer
+        User Management
       </h1>
 
       {error && (
@@ -55,7 +55,7 @@ export default function UsersPage() {
       )}
 
       {users.length === 0 && !error && (
-        <p className="text-center text-gray-500">Keine Benutzer gefunden.</p>
+        <p className="text-center text-gray-500">No Users found.</p>
       )}
 
       <div className="space-y-4">

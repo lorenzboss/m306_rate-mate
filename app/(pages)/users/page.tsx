@@ -14,6 +14,8 @@ type User = {
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/user/getall")
@@ -28,18 +30,28 @@ export default function UsersPage() {
       .catch((err) => setError(err.message));
   }, []);
 
-  const handleDelete = async (userId: string) => {
-    if (!confirm("Are you sure to delete user?")) return;
+  const handleDeleteRequest = (userId: string) => {
+    setSelectedUserId(userId);
+    setShowDialog(true);
+  };
 
-    const res = await fetch(`/api/user/${userId}`, {
+  const confirmDelete = async () => {
+    if (!selectedUserId) return;
+
+    const res = await fetch(`/api/user/${selectedUserId}`, {
       method: "DELETE",
     });
+
     if (res.ok) {
-      setUsers((prev) => prev.filter((user) => user.UserID !== userId));
+      setUsers((prev) => prev.filter((user) => user.UserID !== selectedUserId));
+      setError(null);
     } else {
       const data = await res.json();
       setError(data.error || "Failed to delete");
     }
+
+    setShowDialog(false);
+    setSelectedUserId(null);
   };
 
   return (
@@ -68,15 +80,47 @@ export default function UsersPage() {
               <p className="text-lg font-semibold text-gray-800">
                 {user.EMail}
               </p>
-              <p className="text-sm text-gray-500">Rolle: {user.Role}</p>
+              <p className="text-sm text-gray-500">
+                Role: {user.Role === 2 ? "Admin" : "User"}
+              </p>
             </div>
 
-            <button onClick={() => handleDelete(user.UserID)}>
+            <button onClick={() => handleDeleteRequest(user.UserID)}>
               <Trash2 className="h-10 cursor-pointer text-red-500 transition-all duration-300 hover:scale-115" />
             </button>
           </div>
         ))}
       </div>
+
+      {showDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)]">
+          <div className="rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-lg font-bold text-gray-800">
+              Confirm Deletion
+            </h2>
+            <p className="mb-6 text-gray-700">
+              Are you sure you want to delete this user?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDialog(false);
+                  setSelectedUserId(null);
+                }}
+                className="rounded bg-gray-200 px-4 py-2 text-gray-800 transition-all duration-300 hover:scale-95 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="rounded bg-red-600 px-4 py-2 text-white transition-all duration-300 hover:scale-95 hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

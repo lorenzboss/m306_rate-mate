@@ -5,17 +5,9 @@ import { z } from "zod";
 
 const pepper = process.env.PEPPER_SECRET || "";
 
-// Define Zod schema for validation with updated rules
+// Define Zod schema for validation without username
 const registerSchema = z.object({
   user: z.object({
-    username: z
-      .string()
-      .min(3, "Username must be at least 3 characters")
-      .max(50, "Username cannot exceed 50 characters")
-      .regex(
-        /^[A-Za-z0-9_]+$/,
-        "Username may only contain letters, digits, or underscores"
-      ),
     email: z.string().email("Please enter a valid email address"),
     password: z
       .string()
@@ -24,9 +16,9 @@ const registerSchema = z.object({
       .regex(/\d/, "Password must include at least one digit")
       .regex(
         /[^A-Za-z0-9]/,
-        "Password must include at least one special character"
-      )
-  })
+        "Password must include at least one special character",
+      ),
+  }),
 });
 
 async function generateSalt(): Promise<string> {
@@ -44,22 +36,22 @@ export async function POST(req: Request) {
 
     // Validate the request body with Zod
     const validationResult = registerSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       // Return validation errors
       return NextResponse.json(
-        { 
-          user: null, 
-          message: "Validation failed", 
-          errors: validationResult.error.format() 
+        {
+          user: null,
+          message: "Validation failed",
+          errors: validationResult.error.format(),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Extract validated data
     const {
-      user: { email, username, password },
+      user: { email, password },
     } = validationResult.data;
 
     const existingUserByEmail = await db.user.findUnique({
@@ -69,7 +61,7 @@ export async function POST(req: Request) {
     if (existingUserByEmail) {
       return NextResponse.json(
         { user: null, message: "Something went wrong" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -89,13 +81,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { user: userWithoutSensitiveInfo, message: "User created successfully" },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
       { message: "Failed to create user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

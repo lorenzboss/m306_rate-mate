@@ -294,20 +294,6 @@ export default function LoginPage() {
             </button>
           </p>
         </div>
-
-        <div className="mt-6 border-t border-gray-200 pt-5">
-          <p className="text-center text-xs text-gray-500">
-            By signing in, you agree to our{" "}
-            <a href="#" className="text-blue-600 underline hover:text-blue-700">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="#" className="text-blue-600 underline hover:text-blue-700">
-              Privacy Policy
-            </a>
-            .
-          </p>
-        </div>
       </div>
     </div>
   );

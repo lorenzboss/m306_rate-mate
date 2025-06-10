@@ -111,13 +111,14 @@ export async function createReview(data: {
 
     // Transaction für die Erstellung des Reviews und der Ratings
     const result = await db.$transaction(async (tx) => {
-      // Review erstellen
+      // Review erstellen - FKOwnerId nur setzen wenn nicht privat
+      const reviewData: any = {
+        FKReceiverId: receiverId,
+        ...(isPrivate ? {} : { FKOwnerId: session.user.id }),
+      };
+
       const review = await tx.review.create({
-        data: {
-          FKReceiverId: receiverId,
-          FKOwnerId: session.user.id,
-          // Hier könnten Sie ein isPrivate Feld hinzufügen, falls gewünscht
-        },
+        data: reviewData,
       });
 
       // Ratings erstellen

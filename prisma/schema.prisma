@@ -21,10 +21,10 @@ model User {
 model Review {
   ReviewID     String @id @default(uuid())
   FKReceiverId String
-  FKOwnerId    String
+  FKOwnerId    String?
 
   receiver User @relation("ReviewReceiver", fields: [FKReceiverId], references: [UserID])
-  owner    User @relation("ReviewOwner", fields: [FKOwnerId], references: [UserID])
+  owner    User? @relation("ReviewOwner", fields: [FKOwnerId], references: [UserID])
 
   ratings Rating[]
 }

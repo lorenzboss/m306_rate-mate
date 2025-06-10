@@ -68,7 +68,9 @@ export default function UsersPage() {
               <p className="text-lg font-semibold text-gray-800">
                 {user.EMail}
               </p>
-              <p className="text-sm text-gray-500">Rolle: {user.Role}</p>
+              <p className="text-sm text-gray-500">
+                Role: {user.Role === 2 ? "Admin" : "User"}
+              </p>
             </div>
 
             <button onClick={() => handleDelete(user.UserID)}>

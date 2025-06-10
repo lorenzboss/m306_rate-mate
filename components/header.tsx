@@ -6,6 +6,7 @@ export default async function Header() {
   const session = await requireSession();
 
   const isAdmin = session?.user?.role === 2; // Replace with logic
+  const isLoggedIn = !!session?.user;
   return (
     <header className="flex h-20 items-center justify-center">
       <div
@@ -43,12 +44,19 @@ export default async function Header() {
             >
               <User className="hover:text-violet-500" />
             </Link>
-          ) : (
+          ) : isLoggedIn ? (
             <Link
               href="/review/create"
               className="font-semibold transition-all duration-300 hover:scale-105 hover:text-violet-500"
             >
               Create Review
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="font-semibold transition-all duration-300 hover:scale-105 hover:text-violet-500"
+            >
+              Login
             </Link>
           )}
         </div>

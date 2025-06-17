@@ -91,7 +91,7 @@ export default function ReviewCard({
             <span
               className={`text-lg font-bold ${getRatingColor(review.averageRating)}`}
             >
-              {review.averageRating.toFixed(1)}
+              {review.averageRating}
             </span>
           </div>
         </div>

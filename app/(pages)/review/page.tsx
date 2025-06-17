@@ -164,7 +164,6 @@ const ReviewWizard: React.FC = () => {
         aspectRatings,
         isPrivate,
       };
-      console.log(reviewData);
       const result: ServerActionResult = await createReview(reviewData);
 
       if (!result.success) {

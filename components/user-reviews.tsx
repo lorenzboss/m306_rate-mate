@@ -1,31 +1,83 @@
-import { getUserReviews } from "@/lib/actions/wizard-actions";
-import { requireSession } from "@/lib/session";
-import { Review } from "@/lib/definitions/review-definitions";
+"use client";
+import {
+  getAllUserReviews,
+  getReviewDetails,
+  ReviewWithDetails,
+} from "@/lib/actions/review-actions";
+import { useEffect, useState } from "react";
 import ReviewCard from "./review-card";
+import ReviewDetailsModal from "./review-details-modal";
 
-export default async function UserReviews() {
-  const session = await requireSession();
-  if (!session?.user?.id) {
-    return <div>Please log in to see your reviews.</div>;
+interface UserReviewsProps {
+  type: "created" | "received";
+}
+
+export default function UserReviews({ type }: UserReviewsProps) {
+  const [reviews, setReviews] = useState<ReviewWithDetails[]>([]);
+
+  const [selectedReview, setSelectedReview] =
+    useState<ReviewWithDetails | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [reviewsResult] = await Promise.all([getAllUserReviews()]);
+
+      if (reviewsResult.success) {
+        if (type === "received") {
+          setReviews(reviewsResult.receivedReviews || []);
+        } else if (type === "created") {
+          setReviews(reviewsResult.createdReviews || []);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleViewDetails = async (review: ReviewWithDetails) => {
+    const detailsResult = await getReviewDetails(review.ReviewID);
+    if (detailsResult.success) {
+      setSelectedReview(detailsResult.review);
+      setShowModal(true);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-violet-600"></div>
+      </div>
+    );
   }
-  const result = await getUserReviews(session?.user?.id);
-
-  if (!result.success) {
-    return <div>Fehler beim Laden der Bewertungen: {result.error}</div>;
-  }
-
-  if (!result.reviews) {
-    return <div>Keine Bewertungen gefunden.</div>;
-  }
-  const reviews: Review[] = result.reviews;
-
-  console.log("User Reviews:", reviews);
 
   return (
     <div>
-      {reviews.map((review) => (
-        <ReviewCard key={review.ReviewID} review={review} />
-      ))}
+      <div className="h-[435px] overflow-y-auto p-2">
+        {reviews.map((review) => (
+          <div className="mb-4" key={review.ReviewID}>
+            <ReviewCard
+              review={review}
+              type="created"
+              onViewDetails={handleViewDetails}
+            />
+          </div>
+        ))}
+      </div>
+
+      <ReviewDetailsModal
+        review={selectedReview}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </div>
   );
 }

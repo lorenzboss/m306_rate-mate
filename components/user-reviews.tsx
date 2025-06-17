@@ -19,6 +19,7 @@ export default function UserReviews({ type }: UserReviewsProps) {
     useState<ReviewWithDetails | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [headerText, setHeaderText] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -29,8 +30,10 @@ export default function UserReviews({ type }: UserReviewsProps) {
         if (reviewsResult.success) {
           if (type === "received") {
             setReviews(reviewsResult.receivedReviews || []);
+            setHeaderText("Reviews Received");
           } else if (type === "created") {
             setReviews(reviewsResult.createdReviews || []);
+            setHeaderText("Reviews Created");
           }
         }
       } catch (error) {
@@ -60,7 +63,8 @@ export default function UserReviews({ type }: UserReviewsProps) {
   }
 
   return (
-    <div>
+    <div className="flex flex-col">
+      <div className="self-center text-2xl font-bold">{headerText}</div>
       <div className="h-[435px] overflow-y-auto p-2">
         {reviews.map((review) => (
           <div className="mb-4" key={review.ReviewID}>

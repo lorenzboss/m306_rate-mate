@@ -4,6 +4,7 @@ import { SquareArrowUpRight } from "lucide-react";
 
 export default async function Home() {
   const session = await requireSession();
+
   if (!session?.user?.id) {
     return (
       <div className="flex h-[45vh] items-center justify-center gap-5">
@@ -16,9 +17,13 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex h-[80vh] items-center justify-center gap-10">
-      <UserReviews type="created" />
-      <UserReviews type="received" />
+    <div className="flex h-[80vh] items-center justify-center gap-20 p-4">
+      <div className="w-[500px] rounded-2xl bg-white p-6 shadow-lg">
+        <UserReviews type="created" />
+      </div>
+      <div className="w-[500px] rounded-2xl bg-white p-6 shadow-lg">
+        <UserReviews type="received" />
+      </div>
     </div>
   );
 }

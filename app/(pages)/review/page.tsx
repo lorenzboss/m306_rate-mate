@@ -1,21 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import {
-  Star,
-  User,
-  Check,
-  ArrowLeft,
-  ArrowRight,
-  Lock,
-  Globe,
-  AlertCircle,
-} from "lucide-react";
-import {
+  createReview,
   getAspects,
   getUsers,
-  createReview,
 } from "@/lib/actions/wizard-actions";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Globe,
+  Lock,
+  Star,
+  User,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 // TypeScript Interfaces
 interface Aspect {
@@ -283,7 +283,7 @@ const ReviewWizard: React.FC = () => {
               Neues Review erstellen
             </button>
             <button
-              onClick={() => (window.location.href = "/reviews")}
+              onClick={() => (window.location.href = "/analytics")}
               className="rounded-md bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700"
             >
               Zu Reviews

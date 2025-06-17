@@ -24,6 +24,7 @@ export type ReviewWithDetails = {
   }[];
   averageRating: number;
   totalRatings: number;
+  IsPrivate: boolean;
 };
 
 export type ReviewStatistics = {
@@ -129,8 +130,10 @@ export async function getAllUserReviews(): Promise<
       },
     });
 
-    // Berechne durchschnittliche Bewertungen
-    const processReviews = (reviews: any[]): ReviewWithDetails[] => {
+    const processReviews = (
+      reviews: any[],
+      currentUserId: string,
+    ): ReviewWithDetails[] => {
       return reviews.map((review) => {
         const totalRating = review.ratings.reduce(
           (sum: number, rating: any) => sum + rating.Rating,
@@ -139,16 +142,20 @@ export async function getAllUserReviews(): Promise<
         const averageRating =
           review.ratings.length > 0 ? totalRating / review.ratings.length : 0;
 
+        const hideOwner =
+          review.IsPrivate && review.FKOwnerId !== currentUserId;
+
         return {
           ...review,
+          owner: hideOwner ? null : review.owner,
           averageRating: Math.round(averageRating * 10) / 10,
           totalRatings: review.ratings.length,
         };
       });
     };
 
-    const processedCreatedReviews = processReviews(createdReviews);
-    const processedReceivedReviews = processReviews(receivedReviews);
+    const processedCreatedReviews = processReviews(createdReviews, userId);
+    const processedReceivedReviews = processReviews(receivedReviews, userId);
 
     return {
       success: true,
@@ -309,7 +316,6 @@ export async function getReviewDetails(reviewId: string): Promise<
       return { success: false, error: "Review not found" };
     }
 
-    // Prüfen ob User berechtigt ist, dieses Review zu sehen
     const userId = session.user.id;
     if (review.FKOwnerId !== userId && review.FKReceiverId !== userId) {
       return { success: false, error: "Access denied" };
@@ -323,13 +329,18 @@ export async function getReviewDetails(reviewId: string): Promise<
     const averageRating =
       review.ratings.length > 0 ? totalRating / review.ratings.length : 0;
 
+    const hideOwner = review.IsPrivate && review.FKOwnerId !== userId;
+
+    const sanitizedReview: ReviewWithDetails = {
+      ...review,
+      owner: hideOwner ? null : review.owner,
+      averageRating: Math.round(averageRating * 10) / 10,
+      totalRatings: review.ratings.length,
+    };
+
     return {
       success: true,
-      review: {
-        ...review,
-        averageRating: Math.round(averageRating * 10) / 10,
-        totalRatings: review.ratings.length,
-      },
+      review: sanitizedReview,
     };
   } catch (error) {
     console.error("Error fetching review details:", error);

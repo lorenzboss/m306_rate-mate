@@ -1,7 +1,7 @@
 "use client";
 
-import { Star, User, Award, Mail, Eye } from "lucide-react";
 import { type ReviewWithDetails } from "@/lib/actions/review-actions";
+import { Award, Eye, Mail, Shield, Star, User } from "lucide-react";
 
 interface ReviewCardProps {
   review: ReviewWithDetails;
@@ -34,7 +34,6 @@ export default function ReviewCard({
     type === "created"
       ? review.receiver.EMail
       : review.owner?.EMail || "Anonymous";
-  const userName = userEmail.split("@")[0]; // Extract username from email
 
   return (
     <div
@@ -68,9 +67,11 @@ export default function ReviewCard({
                 {type === "created" ? "Review for" : "Review from"}
               </h3>
               <div className="flex items-center gap-2 text-sm text-slate-600">
-                <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                <span className="truncate font-medium">{userName}</span>
-                <span className="text-slate-400">•</span>
+                {review.IsPrivate ? (
+                  <Shield className="h-3.5 w-3.5 flex-shrink-0" />
+                ) : (
+                  <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                )}
                 <span
                   className="max-w-[120px] truncate text-xs"
                   title={userEmail}

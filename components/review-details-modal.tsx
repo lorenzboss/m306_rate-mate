@@ -1,6 +1,5 @@
 import { ReviewWithDetails } from "@/lib/actions/review-actions";
-import { Star } from "lucide-react";
-import React from "react";
+import { Shield, Star } from "lucide-react";
 
 export default function ReviewDetailsModal({
   review,
@@ -20,7 +19,11 @@ export default function ReviewDetailsModal({
         <div className="sticky top-0 z-10 bg-gradient-to-r from-violet-500 to-purple-600 px-6 py-4 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">Review Details</h2>
+              <div className="flex flex-row items-center gap-2">
+                <h2 className="text-2xl font-bold">Review Details </h2>
+                {review.IsPrivate && <Shield className="s h-6 w-6" />}
+              </div>
+
               <p className="text-violet-100">
                 {review.owner ? `From ${review.owner.EMail}` : "Anonymous"} →{" "}
                 {review.receiver.EMail}

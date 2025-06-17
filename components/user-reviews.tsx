@@ -20,28 +20,28 @@ export default function UserReviews({ type }: UserReviewsProps) {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [reviewsResult] = await Promise.all([getAllUserReviews()]);
-
-      if (reviewsResult.success) {
-        if (type === "received") {
-          setReviews(reviewsResult.receivedReviews || []);
-        } else if (type === "created") {
-          setReviews(reviewsResult.createdReviews || []);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    async function loadData() {
+      setLoading(true);
+      try {
+        const [reviewsResult] = await Promise.all([getAllUserReviews()]);
+
+        if (reviewsResult.success) {
+          if (type === "received") {
+            setReviews(reviewsResult.receivedReviews || []);
+          } else if (type === "created") {
+            setReviews(reviewsResult.createdReviews || []);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     loadData();
-  }, []);
+  }, [type]);
 
   const handleViewDetails = async (review: ReviewWithDetails) => {
     const detailsResult = await getReviewDetails(review.ReviewID);

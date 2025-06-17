@@ -23,6 +23,7 @@ model Review {
   FKReceiverId String
   FKOwnerId    String
   IsPrivate    Boolean @default(false)
+  Comment      String? 
 
   receiver User @relation("ReviewReceiver", fields: [FKReceiverId], references: [UserID])
   owner    User @relation("ReviewOwner", fields: [FKOwnerId], references: [UserID])

@@ -1,5 +1,5 @@
 import { ReviewWithDetails } from "@/lib/actions/review-actions";
-import { Shield, Star } from "lucide-react";
+import { MessageSquare, Shield, Star } from "lucide-react";
 
 export default function ReviewDetailsModal({
   review,
@@ -53,6 +53,25 @@ export default function ReviewDetailsModal({
               Average from {review.totalRatings} aspects
             </p>
           </div>
+
+          {/* Comment Section */}
+          {review.comment && (
+            <div className="mb-8">
+              <div className="rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+                <div className="mb-3 flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    Comment
+                  </h3>
+                </div>
+                <div className="prose prose-sm max-w-none">
+                  <p className="leading-relaxed whitespace-pre-wrap text-slate-700">
+                    "{review.comment}"
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Aspect Ratings */}
           <div className="space-y-4">

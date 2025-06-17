@@ -17,6 +17,10 @@ const createReviewSchema = z.object({
     )
     .min(1, "At least one aspect must be rated"),
   isPrivate: z.boolean(),
+  comment: z
+    .string()
+    .max(1000, "Comment must be 1000 characters or less")
+    .optional(),
 });
 
 export async function getAspects() {
@@ -71,6 +75,7 @@ export async function createReview(data: {
     rating: number;
   }>;
   isPrivate: boolean;
+  comment?: string;
 }) {
   try {
     const session = await requireSession();
@@ -88,7 +93,8 @@ export async function createReview(data: {
       };
     }
 
-    const { receiverId, aspectRatings, isPrivate } = validationResult.data;
+    const { receiverId, aspectRatings, isPrivate, comment } =
+      validationResult.data;
 
     // Prüfen ob der Empfänger existiert
     const receiver = await db.user.findUnique({
@@ -115,6 +121,7 @@ export async function createReview(data: {
         FKReceiverId: receiverId,
         IsPrivate: isPrivate,
         FKOwnerId: session.user.id,
+        Comment: comment || null,
       };
 
       const review = await tx.review.create({

@@ -12,6 +12,7 @@ import {
   Check,
   Globe,
   Lock,
+  MessageSquare,
   Star,
   User,
 } from "lucide-react";
@@ -40,6 +41,7 @@ interface CreateReviewData {
   receiverId: string;
   aspectRatings: AspectRating[];
   isPrivate: boolean;
+  comment?: string;
 }
 
 interface RatingsState {
@@ -64,6 +66,7 @@ const ReviewWizard: React.FC = () => {
   );
   const [ratings, setRatings] = useState<RatingsState>({});
   const [isPrivate, setIsPrivate] = useState<boolean>(false);
+  const [comment, setComment] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
@@ -129,8 +132,9 @@ const ReviewWizard: React.FC = () => {
     },
     {
       number: 3,
-      title: "Sichtbarkeit festlegen",
-      description: "Bestimmen Sie die Sichtbarkeit Ihres Reviews",
+      title: "Kommentar & Sichtbarkeit",
+      description:
+        "Fügen Sie einen optionalen Kommentar hinzu und bestimmen Sie die Sichtbarkeit",
     },
   ];
 
@@ -176,6 +180,7 @@ const ReviewWizard: React.FC = () => {
         receiverId: selectedReceiver,
         aspectRatings,
         isPrivate,
+        comment: comment.trim() || undefined,
       };
       const result: ServerActionResult = await createReview(reviewData);
 
@@ -198,6 +203,7 @@ const ReviewWizard: React.FC = () => {
     setSelectedAspects(new Set());
     setRatings({});
     setIsPrivate(false);
+    setComment("");
     setIsSubmitted(false);
     setError("");
   };
@@ -243,7 +249,7 @@ const ReviewWizard: React.FC = () => {
   // Loading state
   if (dataLoading) {
     return (
-      <div className="mx-auto max-w-2xl rounded-lg bg-white p-6 shadow-lg">
+      <div className="mx-auto my-8 max-w-2xl rounded-lg bg-white p-6 shadow-lg">
         <div className="py-8 text-center">
           <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
           <p className="text-gray-600">Lade Daten...</p>
@@ -255,7 +261,7 @@ const ReviewWizard: React.FC = () => {
   // Error state
   if (error && !isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl rounded-lg bg-white p-6 shadow-lg">
+      <div className="mx-auto my-8 max-w-2xl rounded-lg bg-white p-6 shadow-lg">
         <div className="py-8 text-center">
           <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
           <h2 className="mb-2 text-xl font-semibold text-gray-900">
@@ -276,7 +282,7 @@ const ReviewWizard: React.FC = () => {
   // Success state
   if (isSubmitted) {
     return (
-      <div className="mx-auto max-w-2xl rounded-lg bg-white p-6 shadow-lg">
+      <div className="mx-auto my-8 max-w-2xl rounded-lg bg-white p-6 shadow-lg">
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
             <Check className="h-8 w-8 text-green-600" />
@@ -308,7 +314,7 @@ const ReviewWizard: React.FC = () => {
   }
 
   return (
-    <div className="mx-auto max-w-2xl rounded-lg bg-white p-6 shadow-lg">
+    <div className="mx-auto my-8 max-w-2xl rounded-lg bg-white p-6 shadow-lg">
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -360,20 +366,41 @@ const ReviewWizard: React.FC = () => {
               <User className="mr-2 inline h-4 w-4" />
               Person auswählen
             </label>
-            <select
-              value={selectedReceiver}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setSelectedReceiver(e.target.value)
-              }
-              className="w-full rounded-md border border-gray-300 p-3 focus:border-transparent focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Bitte wählen Sie eine Person aus</option>
-              {users.map((user: User) => (
-                <option key={user.UserID} value={user.UserID}>
-                  {user.EMail}
+            <div className="relative">
+              <select
+                value={selectedReceiver}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setSelectedReceiver(e.target.value)
+                }
+                className="w-full appearance-none rounded-lg border-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white p-4 pr-12 text-gray-900 shadow-sm transition-all duration-200 hover:border-gray-300 hover:shadow-md focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              >
+                <option value="" className="text-gray-500">
+                  ✨ Bitte wählen Sie eine Person aus
                 </option>
-              ))}
-            </select>
+                {users.map((user: User) => (
+                  <option
+                    key={user.UserID}
+                    value={user.UserID}
+                    className="text-gray-900"
+                  >
+                    👤 {user.EMail}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                <svg
+                  className="h-5 w-5 text-gray-400 transition-colors duration-200"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
             {users.length === 0 && (
               <p className="mt-2 text-sm text-gray-500">
                 Keine anderen Benutzer verfügbar.
@@ -469,60 +496,89 @@ const ReviewWizard: React.FC = () => {
         </div>
       )}
 
-      {/* Step 3: Privacy Settings */}
+      {/* Step 3: Comment and Privacy Settings */}
       {currentStep === 3 && (
         <div className="space-y-6">
           <div className="mb-6 text-sm text-gray-600">
-            Bestimmen Sie, wer Ihr Review sehen kann.
+            Fügen Sie einen optionalen Kommentar hinzu und bestimmen Sie, wer
+            Ihr Review sehen kann.
           </div>
 
-          <div className="space-y-4">
-            <div
-              className={`cursor-pointer rounded-lg border p-4 transition-all ${
-                !isPrivate
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-              onClick={() => setIsPrivate(false)}
-            >
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  checked={!isPrivate}
-                  onChange={() => setIsPrivate(false)}
-                  className="mr-3 h-4 w-4 text-blue-600"
-                />
-                <Globe className="mr-3 h-5 w-5 text-green-600" />
-                <div>
-                  <h3 className="font-medium text-gray-900">Öffentlich</h3>
-                  <p className="text-sm text-gray-600">
-                    Alle Benutzer können dieses Review sehen
-                  </p>
+          {/* Comment Section */}
+          <div>
+            <label className="mb-3 block text-sm font-medium text-gray-700">
+              <MessageSquare className="mr-2 inline h-4 w-4" />
+              Kommentar (optional)
+            </label>
+            <textarea
+              value={comment}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setComment(e.target.value)
+              }
+              placeholder="✍️ Fügen Sie hier zusätzliche Bemerkungen oder Feedback hinzu..."
+              className="w-full resize-none rounded-lg border-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white p-4 text-gray-900 shadow-sm transition-all duration-200 hover:border-gray-300 hover:shadow-md focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              rows={4}
+              maxLength={1000}
+            />
+            <div className="mt-1 text-right text-xs text-gray-500">
+              {comment.length}/1000 Zeichen
+            </div>
+          </div>
+
+          {/* Privacy Settings */}
+          <div>
+            <label className="mb-3 block text-sm font-medium text-gray-700">
+              Sichtbarkeit
+            </label>
+            <div className="space-y-4">
+              <div
+                className={`cursor-pointer rounded-lg border p-4 transition-all ${
+                  !isPrivate
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => setIsPrivate(false)}
+              >
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    checked={!isPrivate}
+                    onChange={() => setIsPrivate(false)}
+                    className="mr-3 h-4 w-4 text-blue-600"
+                  />
+                  <Globe className="mr-3 h-5 w-5 text-green-600" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">Öffentlich</h3>
+                    <p className="text-sm text-gray-600">
+                      Alle Benutzer können dieses Review sehen
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              className={`cursor-pointer rounded-lg border p-4 transition-all ${
-                isPrivate
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-              onClick={() => setIsPrivate(true)}
-            >
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  checked={isPrivate}
-                  onChange={() => setIsPrivate(true)}
-                  className="mr-3 h-4 w-4 text-blue-600"
-                />
-                <Lock className="mr-3 h-5 w-5 text-orange-600" />
-                <div>
-                  <h3 className="font-medium text-gray-900">Privat</h3>
-                  <p className="text-sm text-gray-600">
-                    Nur Sie und die bewertete Person können dieses Review sehen
-                  </p>
+              <div
+                className={`cursor-pointer rounded-lg border p-4 transition-all ${
+                  isPrivate
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => setIsPrivate(true)}
+              >
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    checked={isPrivate}
+                    onChange={() => setIsPrivate(true)}
+                    className="mr-3 h-4 w-4 text-blue-600"
+                  />
+                  <Lock className="mr-3 h-5 w-5 text-orange-600" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">Privat</h3>
+                    <p className="text-sm text-gray-600">
+                      Nur Sie und die bewertete Person können dieses Review
+                      sehen
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -553,6 +609,10 @@ const ReviewWizard: React.FC = () => {
                 Sterne
               </p>
               <p>
+                <strong>Kommentar:</strong>{" "}
+                {comment.trim() ? `"${comment.trim()}"` : "Kein Kommentar"}
+              </p>
+              <p>
                 <strong>Sichtbarkeit:</strong>{" "}
                 {isPrivate ? "Privat" : "Öffentlich"}
               </p>
@@ -562,7 +622,7 @@ const ReviewWizard: React.FC = () => {
       )}
 
       {/* Navigation Buttons */}
-      <div className="mt-8 flex justify-between">
+      <div className="mt-8 mb-4 flex justify-between">
         <button
           onClick={() => setCurrentStep(currentStep - 1)}
           disabled={currentStep === 1}

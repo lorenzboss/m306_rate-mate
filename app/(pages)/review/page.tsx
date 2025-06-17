@@ -15,6 +15,8 @@ import {
   Star,
   User,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 // TypeScript Interfaces
@@ -71,6 +73,15 @@ const ReviewWizard: React.FC = () => {
   const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session) {
+      redirect("/");
+    }
+  }, [session, status]);
+
   useEffect(() => {
     const loadInitialData = async (): Promise<void> => {
       try {
@@ -100,7 +111,9 @@ const ReviewWizard: React.FC = () => {
       }
     };
 
-    loadInitialData();
+    if (session) {
+      loadInitialData();
+    }
   }, []);
 
   const steps = [

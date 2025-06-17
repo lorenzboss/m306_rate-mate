@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 type User = {
   UserID: string;
@@ -12,10 +14,19 @@ type User = {
 };
 
 export default function UsersPage() {
+  const { data: session, status } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (session?.user.role == 2 || session?.user.role == 3) {
+    } else {
+      redirect("/");
+    }
+  }, [session, status]);
 
   useEffect(() => {
     fetch("/api/user/getall")

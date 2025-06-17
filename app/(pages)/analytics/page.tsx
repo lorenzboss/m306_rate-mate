@@ -20,10 +20,13 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // Haupt-Komponente
 export default function ReviewsPage() {
+  const { data: session, status } = useSession();
   const [createdReviews, setCreatedReviews] = useState<ReviewWithDetails[]>([]);
   const [receivedReviews, setReceivedReviews] = useState<ReviewWithDetails[]>(
     [],
@@ -36,6 +39,13 @@ export default function ReviewsPage() {
   const [expandedSection, setExpandedSection] = useState<
     "created" | "received" | "both"
   >("both");
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (!session) {
+      redirect("/");
+    }
+  }, [session, status]);
 
   useEffect(() => {
     loadData();

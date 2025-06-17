@@ -1,9 +1,12 @@
 "use client";
 
 import { createAspect } from "@/lib/actions//aspect-actions";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CreateAspectPage() {
+  const { data: session, status } = useSession();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -11,6 +14,14 @@ export default function CreateAspectPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (session?.user.role == 2 || session?.user.role == 3) {
+    } else {
+      redirect("/");
+    }
+  }, [session, status]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

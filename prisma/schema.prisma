@@ -24,8 +24,8 @@ model Review {
   FKOwnerId    String
   IsPrivate    Boolean @default(false)
 
-  receiver User  @relation("ReviewReceiver", fields: [FKReceiverId], references: [UserID])
-  owner    User? @relation("ReviewOwner", fields: [FKOwnerId], references: [UserID])
+  receiver User @relation("ReviewReceiver", fields: [FKReceiverId], references: [UserID])
+  owner    User @relation("ReviewOwner", fields: [FKOwnerId], references: [UserID])
 
   ratings Rating[]
 }

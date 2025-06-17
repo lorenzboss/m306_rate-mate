@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { z } from "zod";
 
@@ -12,8 +12,6 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const error = searchParams.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,12 +22,15 @@ export default function LoginPage() {
   const [successMsg, setSuccessMsg] = useState("");
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const error = searchParams.get("error");
+
     if (error === "TOO_MANY_ATTEMPTS") {
       setErrorMsg("Too many failed login attempts. Please try again later.");
     } else if (error) {
       setErrorMsg("An error occurred during login. Please try again.");
     }
-  }, [error]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

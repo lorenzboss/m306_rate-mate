@@ -36,14 +36,17 @@ export type ReviewStatistics = {
   leastRatedAspect: string | null;
 };
 
-export async function getAllUserReviews(): Promise<{
-  success: true;
-  createdReviews: ReviewWithDetails[];
-  receivedReviews: ReviewWithDetails[];
-} | {
-  success: false;
-  error: string;
-}> {
+export async function getAllUserReviews(): Promise<
+  | {
+      success: true;
+      createdReviews: ReviewWithDetails[];
+      receivedReviews: ReviewWithDetails[];
+    }
+  | {
+      success: false;
+      error: string;
+    }
+> {
   try {
     const session = await requireSession();
     if (!session?.user?.id) {
@@ -131,11 +134,10 @@ export async function getAllUserReviews(): Promise<{
       return reviews.map((review) => {
         const totalRating = review.ratings.reduce(
           (sum: number, rating: any) => sum + rating.Rating,
-          0
+          0,
         );
-        const averageRating = review.ratings.length > 0 
-          ? totalRating / review.ratings.length 
-          : 0;
+        const averageRating =
+          review.ratings.length > 0 ? totalRating / review.ratings.length : 0;
 
         return {
           ...review,
@@ -159,13 +161,16 @@ export async function getAllUserReviews(): Promise<{
   }
 }
 
-export async function getReviewStatistics(): Promise<{
-  success: true;
-  statistics: ReviewStatistics;
-} | {
-  success: false;
-  error: string;
-}> {
+export async function getReviewStatistics(): Promise<
+  | {
+      success: true;
+      statistics: ReviewStatistics;
+    }
+  | {
+      success: false;
+      error: string;
+    }
+> {
   try {
     const session = await requireSession();
     if (!session?.user?.id) {
@@ -178,10 +183,7 @@ export async function getReviewStatistics(): Promise<{
     const allRatings = await db.rating.findMany({
       where: {
         review: {
-          OR: [
-            { FKOwnerId: userId },
-            { FKReceiverId: userId },
-          ],
+          OR: [{ FKOwnerId: userId }, { FKReceiverId: userId }],
         },
       },
       include: {
@@ -206,7 +208,7 @@ export async function getReviewStatistics(): Promise<{
     }
 
     // Statistiken berechnen
-    const ratings = allRatings.map(r => r.Rating);
+    const ratings = allRatings.map((r) => r.Rating);
     const totalRating = ratings.reduce((sum, rating) => sum + rating, 0);
     const averageRating = totalRating / ratings.length;
     const highestRating = Math.max(...ratings);
@@ -214,27 +216,29 @@ export async function getReviewStatistics(): Promise<{
 
     // Rating-Verteilung
     const ratingDistribution: { [key: number]: number } = {};
-    ratings.forEach(rating => {
+    ratings.forEach((rating) => {
       ratingDistribution[rating] = (ratingDistribution[rating] || 0) + 1;
     });
 
     // Aspekt-Statistiken
     const aspectCounts: { [key: string]: number } = {};
-    allRatings.forEach(rating => {
+    allRatings.forEach((rating) => {
       const aspectName = rating.aspect.Name;
       aspectCounts[aspectName] = (aspectCounts[aspectName] || 0) + 1;
     });
 
     const aspectEntries = Object.entries(aspectCounts);
-    const mostRatedAspect = aspectEntries.length > 0 
-      ? aspectEntries.reduce((a, b) => a[1] > b[1] ? a : b)[0] 
-      : null;
-    const leastRatedAspect = aspectEntries.length > 0 
-      ? aspectEntries.reduce((a, b) => a[1] < b[1] ? a : b)[0] 
-      : null;
+    const mostRatedAspect =
+      aspectEntries.length > 0
+        ? aspectEntries.reduce((a, b) => (a[1] > b[1] ? a : b))[0]
+        : null;
+    const leastRatedAspect =
+      aspectEntries.length > 0
+        ? aspectEntries.reduce((a, b) => (a[1] < b[1] ? a : b))[0]
+        : null;
 
     // Anzahl unique Reviews
-    const uniqueReviewIds = new Set(allRatings.map(r => r.FKReviewId));
+    const uniqueReviewIds = new Set(allRatings.map((r) => r.FKReviewId));
     const totalReviews = uniqueReviewIds.size;
 
     return {
@@ -255,13 +259,16 @@ export async function getReviewStatistics(): Promise<{
   }
 }
 
-export async function getReviewDetails(reviewId: string): Promise<{
-  success: true;
-  review: ReviewWithDetails;
-} | {
-  success: false;
-  error: string;
-}> {
+export async function getReviewDetails(reviewId: string): Promise<
+  | {
+      success: true;
+      review: ReviewWithDetails;
+    }
+  | {
+      success: false;
+      error: string;
+    }
+> {
   try {
     const session = await requireSession();
     if (!session?.user?.id) {
@@ -311,11 +318,10 @@ export async function getReviewDetails(reviewId: string): Promise<{
     // Durchschnittliche Bewertung berechnen
     const totalRating = review.ratings.reduce(
       (sum, rating) => sum + rating.Rating,
-      0
+      0,
     );
-    const averageRating = review.ratings.length > 0 
-      ? totalRating / review.ratings.length 
-      : 0;
+    const averageRating =
+      review.ratings.length > 0 ? totalRating / review.ratings.length : 0;
 
     return {
       success: true,

@@ -1,11 +1,8 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/session";
+import { NextResponse } from "next/server";
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(req: Request) {
   try {
     const session = await requireSession();
 
@@ -13,7 +10,12 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userId = params.id;
+    const url = new URL(req.url);
+    const userId = url.pathname.split("/").pop();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Missing user id" }, { status: 400 });
+    }
 
     await db.user.delete({
       where: { UserID: userId },

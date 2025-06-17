@@ -1,13 +1,13 @@
 import {
-  Star,
   ArrowRight,
-  Eye,
-  Users,
-  TrendingUp,
-  Shield,
-  MessageSquare,
   Award,
   CheckCircle,
+  Eye,
+  MessageSquare,
+  Shield,
+  Star,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 
 export default function R8M8Landing() {
@@ -274,9 +274,9 @@ export default function R8M8Landing() {
                   <Users className="h-10 w-10 text-white" />
                 </div>
                 <blockquote className="mb-6 text-lg text-gray-800 italic">
-                  "R8M8 transformed how our team communicates. We've seen a 40%
+                  {`"R8M8 transformed how our team communicates. We've seen a 40%
                   improvement in project completion times and much better
-                  collaboration across departments."
+                  collaboration across departments."`}
                 </blockquote>
                 <div className="font-semibold text-black">Sarah Chen</div>
                 <div className="text-gray-600">

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { Review } from "../definitions/review-definitions";
 
 // Schema für die Validierung
 const createReviewSchema = z.object({
@@ -152,7 +153,7 @@ export async function createReview(data: {
 
 export async function getUserReviews(userId: string) {
   try {
-    const reviews = await db.review.findMany({
+    const reviews: Review[] = await db.review.findMany({
       where: {
         FKReceiverId: userId,
       },

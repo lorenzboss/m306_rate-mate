@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { z } from "zod";
 
 const registerSchema = z.object({
@@ -73,7 +73,7 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/login");
       }, 1500);
-    } catch (err) {
+    } catch {
       setErrorMsg("An unexpected error occurred. Please try again.");
       setIsLoading(false);
     }

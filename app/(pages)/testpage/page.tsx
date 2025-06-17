@@ -2,9 +2,9 @@
 
 //This page is a demo for how to use the session validation
 
-import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Testpage() {
   const { data: session, status } = useSession();
@@ -15,7 +15,7 @@ export default function Testpage() {
     if (session?.user.role !== 2) {
       router.push("/");
     }
-  }, [session, router]);
+  }, [session, router, status]);
 
   return (
     <div className="place-items-center p-8 text-center sm:p-20 sm:text-left">

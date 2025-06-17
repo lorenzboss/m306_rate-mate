@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import bcrypt from "bcrypt";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const pepper = process.env.PEPPER_SECRET || "";
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     const salt = await generateSalt();
     const hashedPassword = await hashPassword(password, salt);
 
-    const newUser = await db.user.create({
+    await db.user.create({
       data: {
         Role: 1,
         EMail: email,
@@ -77,10 +77,8 @@ export async function POST(req: Request) {
       },
     });
 
-    const { Password, Salt, ...userWithoutSensitiveInfo } = newUser;
-
     return NextResponse.json(
-      { user: userWithoutSensitiveInfo, message: "User created successfully" },
+      { message: "User created successfully" },
       { status: 201 },
     );
   } catch (error) {

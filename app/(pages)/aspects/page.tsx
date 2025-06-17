@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { createAspect } from "@/lib/actions//aspect-actions";
+import { useState } from "react";
 
 export default function CreateAspectPage() {
   const [name, setName] = useState("");
@@ -33,7 +33,7 @@ export default function CreateAspectPage() {
           text: result.error || "Failed to create aspect",
         });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "An unexpected error occurred" });
     } finally {
       setIsSubmitting(false);

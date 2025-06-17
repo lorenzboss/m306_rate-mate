@@ -16,11 +16,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm rebuild lightningcss --build-from-source
       
       - name: Run ESLint
         run: npm run lint
@@ -35,11 +37,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
       
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm rebuild lightningcss --build-from-source
       
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -53,7 +57,3 @@ jobs:
           PEPPER_SECRET: ${{ secrets.PEPPER_SECRET }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NODE_ENV: production
-
-  
-      
-    

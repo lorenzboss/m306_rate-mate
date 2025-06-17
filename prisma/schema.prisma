@@ -19,11 +19,12 @@ model User {
 }
 
 model Review {
-  ReviewID     String @id @default(uuid())
+  ReviewID     String  @id @default(uuid())
   FKReceiverId String
-  FKOwnerId    String?
+  FKOwnerId    String
+  IsPrivate    Boolean @default(false)
 
-  receiver User @relation("ReviewReceiver", fields: [FKReceiverId], references: [UserID])
+  receiver User  @relation("ReviewReceiver", fields: [FKReceiverId], references: [UserID])
   owner    User? @relation("ReviewOwner", fields: [FKOwnerId], references: [UserID])
 
   ratings Rating[]

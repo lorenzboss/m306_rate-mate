@@ -26,18 +26,17 @@ git pull origin $BRANCH
 echo "Installiere Dependencies..."
 npm install
 
+echo "Führe Build durch..."
+npm run build
+
 echo "Führe Prisma Migrationen aus..."
 npx prisma migrate deploy
 npx prisma generate
 
-echo "Stoppe laufenden Prozess (falls vorhanden)..."
-pm2 stop $APP_NAME || true
-pm2 delete $APP_NAME || true
-
-echo "Starte Anwendung mit PM2..."
-pm2 start npm --name $APP_NAME -- start
+echo "Starte oder restart Anwendung mit PM2..."
+pm2 restart $APP_NAME || pm2 start npm --name $APP_NAME -- start
 
 echo "Speichere PM2 Prozessliste..."
 pm2 save
 
-echo "Deployment erfolgreich abgeschlossen."
+echo "Deployment erfolgreich abgeschlossen!"

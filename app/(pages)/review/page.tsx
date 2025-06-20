@@ -117,7 +117,7 @@ const ReviewWizard: React.FC = () => {
     if (session) {
       loadInitialData();
     }
-  }, []);
+  }, [session]);
 
   const steps = [
     {

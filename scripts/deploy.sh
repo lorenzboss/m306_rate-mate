@@ -40,12 +40,4 @@ pm2 start npm --name $APP_NAME -- start
 echo "Speichere PM2 Prozessliste..."
 pm2 save
 
-echo "Sorge für PM2 Autostart beim Systemstart..."
-STARTUP_CMD=$(sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u $USER --hp $HOME | grep sudo)
-if [ -n "$STARTUP_CMD" ]; then
-  echo "Führe PM2 Autostart Befehl aus:"
-  echo "$STARTUP_CMD"
-  eval "$STARTUP_CMD"
-fi
-
 echo "Deployment erfolgreich abgeschlossen."

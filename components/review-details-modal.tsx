@@ -66,7 +66,7 @@ export default function ReviewDetailsModal({
                 </div>
                 <div className="prose prose-sm max-w-none">
                   <p className="leading-relaxed whitespace-pre-wrap text-slate-700">
-                    "{review.comment}"
+                    {review.comment}
                   </p>
                 </div>
               </div>

@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { requireSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { Review } from "../definitions/review-definitions";
 
 // Schema für die Validierung
 const createReviewSchema = z.object({
@@ -18,6 +17,10 @@ const createReviewSchema = z.object({
     )
     .min(1, "At least one aspect must be rated"),
   isPrivate: z.boolean(),
+  comment: z
+    .string()
+    .max(1000, "Comment must be 1000 characters or less")
+    .optional(),
 });
 
 export async function getAspects() {
@@ -72,6 +75,7 @@ export async function createReview(data: {
     rating: number;
   }>;
   isPrivate: boolean;
+  comment?: string;
 }) {
   try {
     const session = await requireSession();
@@ -89,7 +93,8 @@ export async function createReview(data: {
       };
     }
 
-    const { receiverId, aspectRatings, isPrivate } = validationResult.data;
+    const { receiverId, aspectRatings, isPrivate, comment } =
+      validationResult.data;
 
     // Prüfen ob der Empfänger existiert
     const receiver = await db.user.findUnique({
@@ -116,6 +121,7 @@ export async function createReview(data: {
         FKReceiverId: receiverId,
         IsPrivate: isPrivate,
         FKOwnerId: session.user.id,
+        Comment: comment || null,
       };
 
       const review = await tx.review.create({
@@ -153,7 +159,7 @@ export async function createReview(data: {
 
 export async function getUserReviews(userId: string) {
   try {
-    const reviews: Review[] = await db.review.findMany({
+    const reviews = await db.review.findMany({
       where: {
         FKReceiverId: userId,
       },

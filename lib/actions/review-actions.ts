@@ -24,6 +24,7 @@ export type ReviewWithDetails = {
   }[];
   averageRating: number;
   totalRatings: number;
+  comment: string;
   IsPrivate: boolean;
 };
 
@@ -336,6 +337,7 @@ export async function getReviewDetails(reviewId: string): Promise<
       owner: hideOwner ? null : review.owner,
       averageRating: Math.round(averageRating * 10) / 10,
       totalRatings: review.ratings.length,
+      comment: review.Comment ?? "",
     };
 
     return {

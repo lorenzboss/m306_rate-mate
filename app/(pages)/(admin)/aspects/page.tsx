@@ -8,7 +8,9 @@ import {
   getAllAspects,
 } from "@/lib/actions/aspect-actions";
 import { Plus, Settings, Star, Target, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export interface Aspect {
@@ -21,6 +23,7 @@ export interface Aspect {
 }
 
 export default function AspectsPage() {
+  const { data: session, status } = useSession();
   const [aspects, setAspects] = useState<Aspect[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingAspect, setEditingAspect] = useState<Aspect | null>(null);
@@ -29,6 +32,14 @@ export default function AspectsPage() {
   useEffect(() => {
     loadAspects();
   }, []);
+
+  useEffect(() => {
+    if (status === "loading") return;
+    if (session?.user.role == 2 || session?.user.role == 3) {
+    } else {
+      redirect("/");
+    }
+  }, [session, status]);
 
   const loadAspects = async () => {
     setLoading(true);

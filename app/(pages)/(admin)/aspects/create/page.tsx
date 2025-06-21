@@ -40,7 +40,7 @@ export default function CreateAspectPage() {
         });
         setName("");
         setDescription("");
-        redirect("/aspects");
+        router.push("/aspects");
       } else {
         setMessage({
           type: "error",

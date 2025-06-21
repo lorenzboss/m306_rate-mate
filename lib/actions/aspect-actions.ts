@@ -124,14 +124,6 @@ export async function deleteAspect(aspectId: string) {
       return { success: false, error: "Aspect not found" };
     }
 
-    // Prüfen ob der Aspect bereits in Ratings verwendet wird
-    if (aspect._count.ratings > 0) {
-      return {
-        success: false,
-        error: "Cannot delete aspect that is already used in ratings",
-      };
-    }
-
     // Aspect löschen
     await db.aspect.delete({
       where: { AspectID: aspectId },

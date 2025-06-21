@@ -150,3 +150,72 @@ export async function deleteAspect(aspectId: string) {
     return { success: false, error: "Failed to delete aspect" };
   }
 }
+
+export async function editAspect(
+  aspectId: string,
+  data: {
+    name: string;
+    description: string;
+  },
+) {
+  try {
+    const session = await requireSession();
+    if (!session?.user?.id) {
+      return { success: false, error: "Not authenticated" };
+    }
+
+    // Validierung der Eingabedaten
+    const validationResult = createAspectSchema.safeParse(data);
+    if (!validationResult.success) {
+      return {
+        success: false,
+        error: "Invalid data",
+        details: validationResult.error.format(),
+      };
+    }
+
+    const { name, description } = validationResult.data;
+
+    // Prüfen, ob der neue Name bereits von einem anderen Aspect verwendet wird
+    const existingAspect = await db.aspect.findFirst({
+      where: {
+        Name: {
+          equals: name,
+          mode: "insensitive",
+        },
+        NOT: {
+          AspectID: aspectId,
+        },
+      },
+    });
+
+    if (existingAspect) {
+      return {
+        success: false,
+        error: "Another aspect with this name already exists",
+      };
+    }
+
+    // Aspect aktualisieren
+    const updatedAspect = await db.aspect.update({
+      where: { AspectID: aspectId },
+      data: {
+        Name: name.trim(),
+        Description: description.trim(),
+      },
+    });
+
+    // Cache invalidieren
+    revalidatePath("/aspects");
+    revalidatePath("/reviews");
+
+    return {
+      success: true,
+      message: "Aspect updated successfully",
+      aspectId: updatedAspect.AspectID,
+    };
+  } catch (error) {
+    console.error("Error updating aspect:", error);
+    return { success: false, error: "Failed to update aspect" };
+  }
+}

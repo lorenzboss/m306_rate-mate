@@ -1,138 +1,204 @@
 "use client";
 
-import { createAspect } from "@/lib/actions//aspect-actions";
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import AspectCard from "@/components/aspect-card";
+import EditModal from "@/components/edit-modal";
+import {
+  deleteAspect,
+  editAspect,
+  getAllAspects,
+} from "@/lib/actions/aspect-actions";
+import { Plus, Settings, Star, Target, Users } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function CreateAspectPage() {
-  const { data: session, status } = useSession();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+export interface Aspect {
+  AspectID: string;
+  Name: string;
+  Description: string;
+  _count: {
+    ratings: number;
+  };
+}
+
+export default function AspectsPage() {
+  const [aspects, setAspects] = useState<Aspect[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingAspect, setEditingAspect] = useState<Aspect | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (session?.user.role == 2 || session?.user.role == 3) {
-    } else {
-      redirect("/");
-    }
-  }, [session, status]);
+    loadAspects();
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setMessage(null);
-
+  const loadAspects = async () => {
+    setLoading(true);
     try {
-      const result = await createAspect({ name, description });
-
+      const result = await getAllAspects();
       if (result.success) {
-        setMessage({
-          type: "success",
-          text: result.message || "Aspect created successfully",
-        });
-        setName("");
-        setDescription("");
-      } else {
-        setMessage({
-          type: "error",
-          text: result.error || "Failed to create aspect",
-        });
+        setAspects(result.aspects || []);
       }
-    } catch {
-      setMessage({ type: "error", text: "An unexpected error occurred" });
+    } catch (error) {
+      console.error("Error loading aspects:", error);
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="mx-auto max-w-2xl p-6">
-      <div className="rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-2xl font-bold text-gray-900">
-          Create New Aspect
-        </h1>
+  const handleEdit = (aspect: Aspect) => {
+    setEditingAspect(aspect);
+    setShowEditModal(true);
+  };
 
-        {message && (
-          <div
-            className={`mb-6 rounded-md p-4 ${
-              message.type === "success"
-                ? "border border-green-200 bg-green-50 text-green-800"
-                : "border border-red-200 bg-red-50 text-red-800"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
+  const handleSaveEdit = async (
+    aspectId: string,
+    data: { name: string; description: string },
+  ) => {
+    const result = await editAspect(aspectId, data);
+    if (result.success) {
+      await loadAspects(); // Reload aspects to get updated data
+    } else {
+      alert(result.error || "Failed to update aspect");
+    }
+  };
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="name"
-              className="mb-2 block text-sm font-medium text-gray-700"
-            >
-              Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Enter aspect name"
-              disabled={isSubmitting}
-            />
-          </div>
+  const handleDelete = async (aspectId: string) => {
+    const result = await deleteAspect(aspectId);
+    if (result.success) {
+      await loadAspects(); // Reload aspects to remove deleted aspect
+    } else {
+      alert(result.error || "Failed to delete aspect");
+    }
+  };
 
-          <div>
-            <label
-              htmlFor="description"
-              className="mb-2 block text-sm font-medium text-gray-700"
-            >
-              Description *
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-              rows={4}
-              className="resize-vertical w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Enter aspect description"
-              disabled={isSubmitting}
-            />
-          </div>
+  const totalRatings = aspects.reduce(
+    (sum, aspect) => sum + aspect._count.ratings,
+    0,
+  );
 
-          <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={isSubmitting || !name.trim() || !description.trim()}
-              className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isSubmitting ? "Creating..." : "Create Aspect"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setName("");
-                setDescription("");
-                setMessage(null);
-              }}
-              disabled={isSubmitting}
-              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Clear
-            </button>
-          </div>
-        </form>
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-violet-600"></div>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-100 px-4 py-8">
+      <div className="mx-auto max-w-6xl space-y-8">
+        {/* Header */}
+        <div className="space-y-4 text-center">
+          <h1 className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent">
+            Aspects Dashboard
+          </h1>
+          <p className="mx-auto max-w-2xl text-lg text-slate-600">
+            Manage your review aspects and track their usage across all reviews.
+          </p>
+        </div>
+
+        {/* Statistics */}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="rounded-2xl border border-white/20 bg-white/50 p-6 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-violet-100 p-2">
+                <Settings className="h-5 w-5 text-violet-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Total Aspects</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {aspects.length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/20 bg-white/50 p-6 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-green-100 p-2">
+                <Star className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Total Ratings</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {totalRatings}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/20 bg-white/50 p-6 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-blue-100 p-2">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-slate-600">Avg. Ratings/Aspect</p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {aspects.length > 0
+                    ? (totalRatings / aspects.length).toFixed(1)
+                    : "0"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-violet-100 p-2">
+              <Target className="h-5 w-5 text-violet-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900">
+              Your Aspects ({aspects.length})
+            </h2>
+          </div>
+          <Link
+            href="/aspects/create"
+            className="flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 font-medium text-white transition-colors hover:bg-violet-700"
+          >
+            <Plus className="h-4 w-4" />
+            Create Aspect
+          </Link>
+        </div>
+
+        {/* Aspects List */}
+        <div className="space-y-4">
+          {aspects.length > 0 ? (
+            aspects.map((aspect) => (
+              <AspectCard
+                key={aspect.AspectID}
+                aspect={aspect}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))
+          ) : (
+            <div className="rounded-2xl border border-white/20 bg-white/50 py-12 text-center">
+              <Target className="mx-auto mb-4 h-12 w-12 text-slate-400" />
+              <p className="mb-4 text-slate-600">No aspects created yet</p>
+              <Link
+                href="/aspects/create"
+                className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 font-medium text-white transition-colors hover:bg-violet-700"
+              >
+                <Plus className="h-4 w-4" />
+                Create Your First Aspect
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Edit Modal */}
+      <EditModal
+        aspect={editingAspect}
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingAspect(null);
+        }}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 }

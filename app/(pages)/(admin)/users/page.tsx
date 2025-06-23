@@ -30,7 +30,14 @@ export default function UsersPage() {
     const loadUsers = async () => {
       try {
         const fetchedUsers = await getAllUsers();
-        setUsers(fetchedUsers);
+        // Filter out users missing required fields
+        const validUsers = fetchedUsers.filter(
+          (user): user is User =>
+            typeof user.UserID === "string" &&
+            typeof user.EMail === "string" &&
+            typeof user.Role === "number",
+        );
+        setUsers(validUsers);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error loading users");

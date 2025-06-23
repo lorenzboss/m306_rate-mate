@@ -1,12 +1,12 @@
 import { requireSession } from "@/lib/session";
-import { BarChart3, Home, Plus, Settings, User } from "lucide-react";
+import { BarChart3, Home, Plus, Settings, User, Users } from "lucide-react";
 import Link from "next/link";
 import Logout from "./logout";
 
 export default async function Header() {
   const session = await requireSession();
 
-  const isAdmin = session?.user?.role === 2;
+  const isTeamLeader = session?.user?.role === 2 || session?.user?.role === 3;
   const isLoggedIn = !!session?.user;
 
   return (
@@ -49,8 +49,15 @@ export default async function Header() {
                   Analytics
                 </Link>
 
-                {isAdmin && (
+                {isTeamLeader && (
                   <>
+                    <Link
+                      href="/team"
+                      className="group flex items-center gap-2 rounded-xl px-4 py-2 font-medium text-slate-700 transition-all duration-300 hover:bg-violet-50 hover:text-violet-600"
+                    >
+                      <Users className="h-4 w-4 transition-transform group-hover:scale-110" />
+                      Team
+                    </Link>
                     <Link
                       href="/aspects"
                       className="group flex items-center gap-2 rounded-xl px-4 py-2 font-medium text-slate-700 transition-all duration-300 hover:bg-violet-50 hover:text-violet-600"

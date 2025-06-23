@@ -38,7 +38,7 @@ model Rating {
   FKAspectId String
 
   review Review @relation(fields: [FKReviewId], references: [ReviewID])
-  aspect Aspect @relation(fields: [FKAspectId], references: [AspectID])
+  aspect Aspect @relation(fields: [FKAspectId], references: [AspectID], onDelete: Cascade)
 }
 
 model Aspect {

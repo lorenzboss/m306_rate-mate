@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import {
+  deleteUser,
+  getAllUsers,
+  User,
+} from "@/app/actions/user-management-actions";
 import { Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-
-type User = {
-  UserID: string;
-  Role: number;
-  EMail: string;
-  Password: string;
-  Salt: string;
-};
+import { useEffect, useState, useTransition } from "react";
 
 export default function UsersPage() {
   const { data: session, status } = useSession();
@@ -19,6 +16,7 @@ export default function UsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (status === "loading") return;
@@ -29,16 +27,24 @@ export default function UsersPage() {
   }, [session, status]);
 
   useEffect(() => {
-    fetch("/api/user/getall")
-      .then(async (res) => {
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "Error Loading");
-        }
-        return res.json();
-      })
-      .then(setUsers)
-      .catch((err) => setError(err.message));
+    const loadUsers = async () => {
+      try {
+        const fetchedUsers = await getAllUsers();
+        // Filter out users missing required fields
+        const validUsers = fetchedUsers.filter(
+          (user): user is User =>
+            typeof user.UserID === "string" &&
+            typeof user.EMail === "string" &&
+            typeof user.Role === "number",
+        );
+        setUsers(validUsers);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error loading users");
+      }
+    };
+
+    loadUsers();
   }, []);
 
   const handleDeleteRequest = (userId: string) => {
@@ -49,20 +55,26 @@ export default function UsersPage() {
   const confirmDelete = async () => {
     if (!selectedUserId) return;
 
-    const res = await fetch(`/api/user/${selectedUserId}`, {
-      method: "DELETE",
+    startTransition(async () => {
+      try {
+        await deleteUser(selectedUserId);
+        setUsers((prev) =>
+          prev.filter((user) => user.UserID !== selectedUserId),
+        );
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to delete user");
+      } finally {
+        setShowDialog(false);
+        setSelectedUserId(null);
+      }
     });
+  };
 
-    if (res.ok) {
-      setUsers((prev) => prev.filter((user) => user.UserID !== selectedUserId));
-      setError(null);
-    } else {
-      const data = await res.json();
-      setError(data.error || "Failed to delete");
-    }
-
-    setShowDialog(false);
-    setSelectedUserId(null);
+  const roleMap: { [key: number]: string } = {
+    3: "Admin",
+    2: "Team Leader",
+    1: "User",
   };
 
   return (
@@ -92,12 +104,17 @@ export default function UsersPage() {
                 {user.EMail}
               </p>
               <p className="text-sm text-gray-500">
-                Role: {user.Role === 2 ? "Admin" : "User"}
+                Role: {roleMap[user.Role] || "Unknown"}
               </p>
             </div>
 
-            <button onClick={() => handleDeleteRequest(user.UserID)}>
-              <Trash2 className="h-10 cursor-pointer text-red-500 transition-all duration-300 hover:scale-115" />
+            <button
+              onClick={() => handleDeleteRequest(user.UserID)}
+              disabled={isPending}
+            >
+              <Trash2
+                className={`h-10 cursor-pointer text-red-500 transition-all duration-300 hover:scale-115 ${isPending ? "opacity-50" : ""}`}
+              />
             </button>
           </div>
         ))}
@@ -119,14 +136,16 @@ export default function UsersPage() {
                   setSelectedUserId(null);
                 }}
                 className="rounded bg-gray-200 px-4 py-2 text-gray-800 transition-all duration-300 hover:scale-95 hover:bg-gray-300"
+                disabled={isPending}
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
                 className="rounded bg-red-600 px-4 py-2 text-white transition-all duration-300 hover:scale-95 hover:bg-red-700"
+                disabled={isPending}
               >
-                Delete
+                {isPending ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

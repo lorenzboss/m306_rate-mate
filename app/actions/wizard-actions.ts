@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/session";
+import { requireUser } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -40,8 +40,8 @@ export async function getAspects() {
 
 export async function getUsers() {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
+    const session = await requireUser();
+    if (!session) {
       return { success: false, error: "Not authenticated" };
     }
 
@@ -78,8 +78,8 @@ export async function createReview(data: {
   comment?: string;
 }) {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
+    const session = await requireUser();
+    if (!session) {
       return { success: false, error: "Not authenticated" };
     }
 

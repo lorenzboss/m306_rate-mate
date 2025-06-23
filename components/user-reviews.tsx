@@ -3,7 +3,7 @@ import {
   getAllUserReviews,
   getReviewDetails,
   ReviewWithDetails,
-} from "@/lib/actions/review-actions";
+} from "@/app/actions/review-actions";
 import { useEffect, useState } from "react";
 import ReviewCard from "./review-card";
 import ReviewDetailsModal from "./review-details-modal";

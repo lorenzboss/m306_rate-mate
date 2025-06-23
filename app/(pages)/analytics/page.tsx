@@ -1,15 +1,15 @@
 "use client";
 
-import ReviewCard from "@/components/review-card";
-import ReviewDetailsModal from "@/components/review-details-modal";
-import StatCard from "@/components/stat-card";
 import {
   getAllUserReviews,
   getReviewDetails,
   getReviewStatistics,
   type ReviewStatistics,
   type ReviewWithDetails,
-} from "@/lib/actions/review-actions";
+} from "@/app/actions/review-actions";
+import ReviewCard from "@/components/review-card";
+import ReviewDetailsModal from "@/components/review-details-modal";
+import StatCard from "@/components/stat-card";
 import {
   Award,
   BarChart3,

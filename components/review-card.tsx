@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReviewWithDetails } from "@/lib/actions/review-actions";
+import { type ReviewWithDetails } from "@/app/actions/review-actions";
 import { Award, Eye, Mail, Shield, Star, User } from "lucide-react";
 
 interface ReviewCardProps {

@@ -8,17 +8,22 @@ export type User = {
   UserID: string;
   Role: number;
   EMail: string;
-  Password: string;
-  Salt: string;
 };
 
-export async function getAllUsers(): Promise<User[]> {
+export async function getAllUsers(): Promise<Partial<User>[]> {
   try {
     if (!(await requireTeamLeader())) {
       throw new Error("You may not access this resource");
     }
 
-    const users = await db.user.findMany();
+    const users = await db.user.findMany({
+      select: {
+        UserID: true,
+        Role: true,
+        EMail: true,
+      },
+    });
+
     return users;
   } catch (error) {
     console.error("Error fetching users:", error);

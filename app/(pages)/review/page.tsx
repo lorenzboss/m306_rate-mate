@@ -500,8 +500,8 @@ const ReviewWizard: React.FC = () => {
       {currentStep === 3 && (
         <div className="space-y-6">
           <div className="mb-6 text-sm text-gray-600">
-            Fügen Sie einen optionalen Kommentar hinzu und bestimmen Sie, wer
-            Ihr Review sehen kann.
+            Fügen Sie einen optionalen Kommentar hinzu und bestimmen Sie die
+            Sichtbarkeit des Reviews.
           </div>
 
           {/* Comment Section */}
@@ -550,7 +550,7 @@ const ReviewWizard: React.FC = () => {
                   <div>
                     <h3 className="font-medium text-gray-900">Öffentlich</h3>
                     <p className="text-sm text-gray-600">
-                      Alle Benutzer können dieses Review sehen
+                      Der Empfänger sieht, von wem das Review stammt.
                     </p>
                   </div>
                 </div>
@@ -575,8 +575,7 @@ const ReviewWizard: React.FC = () => {
                   <div>
                     <h3 className="font-medium text-gray-900">Privat</h3>
                     <p className="text-sm text-gray-600">
-                      Nur Sie und die bewertete Person können dieses Review
-                      sehen
+                      Der Empfänger sieht nicht, wer das Review verfasst hat.
                     </p>
                   </div>
                 </div>

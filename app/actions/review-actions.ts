@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/session";
+import { requireUser } from "@/lib/session";
 
 export type ReviewWithDetails = {
   ReviewID: string;
@@ -50,8 +50,8 @@ export async function getAllUserReviews(): Promise<
     }
 > {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
+    const session = await requireUser();
+    if (!session) {
       return { success: false, error: "Not authenticated" };
     }
 
@@ -180,8 +180,8 @@ export async function getReviewStatistics(): Promise<
     }
 > {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
+    const session = await requireUser();
+    if (!session) {
       return { success: false, error: "Not authenticated" };
     }
 
@@ -278,8 +278,8 @@ export async function getReviewDetails(reviewId: string): Promise<
     }
 > {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
+    const session = await requireUser();
+    if (!session) {
       return { success: false, error: "Not authenticated" };
     }
 

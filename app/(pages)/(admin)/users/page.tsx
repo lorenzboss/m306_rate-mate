@@ -64,6 +64,12 @@ export default function UsersPage() {
     });
   };
 
+  const roleMap: { [key: number]: string } = {
+    3: "Admin",
+    2: "Team Leader",
+    1: "User",
+  };
+
   return (
     <main className="mx-auto min-h-screen max-w-4xl p-8">
       <h1 className="mb-8 border-b border-gray-300 pb-3 text-3xl font-extrabold text-gray-900">
@@ -91,7 +97,7 @@ export default function UsersPage() {
                 {user.EMail}
               </p>
               <p className="text-sm text-gray-500">
-                Role: {user.Role === 2 ? "Admin" : "User"}
+                Role: {roleMap[user.Role] || "Unknown"}
               </p>
             </div>
 

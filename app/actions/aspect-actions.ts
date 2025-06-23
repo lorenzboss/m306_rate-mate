@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/session";
+import { requireTeamLeader, requireUser } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -22,9 +22,8 @@ export async function createAspect(data: {
   description: string;
 }) {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
-      return { success: false, error: "Not authenticated" };
+    if (!(await requireTeamLeader())) {
+      return { success: false, error: "Not authenticated or authorized!" };
     }
 
     // Validierung der Eingabedaten
@@ -81,6 +80,10 @@ export async function createAspect(data: {
 
 export async function getAllAspects() {
   try {
+    if (!(await requireUser())) {
+      return { success: false, error: "Not authenticated" };
+    }
+
     const aspects = await db.aspect.findMany({
       orderBy: {
         Name: "asc",
@@ -103,9 +106,8 @@ export async function getAllAspects() {
 
 export async function deleteAspect(aspectId: string) {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
-      return { success: false, error: "Not authenticated" };
+    if (!(await requireTeamLeader())) {
+      return { success: false, error: "Not authenticated or authorized!" };
     }
 
     // Prüfen ob der Aspect existiert
@@ -151,9 +153,8 @@ export async function editAspect(
   },
 ) {
   try {
-    const session = await requireSession();
-    if (!session?.user?.id) {
-      return { success: false, error: "Not authenticated" };
+    if (!(await requireTeamLeader())) {
+      return { success: false, error: "Not authenticated or authorized!" };
     }
 
     // Validierung der Eingabedaten

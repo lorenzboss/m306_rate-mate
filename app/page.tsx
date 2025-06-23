@@ -1,11 +1,11 @@
 import UserReviews from "@/components/user-reviews";
-import { requireSession } from "@/lib/session";
+import { requireUser } from "@/lib/session";
 import { SquareArrowUpRight } from "lucide-react";
 
 export default async function Home() {
-  const session = await requireSession();
+  const session = await requireUser();
 
-  if (!session?.user?.id) {
+  if (!session) {
     return (
       <div className="flex h-[45vh] items-center justify-center gap-5">
         <div className="flex text-4xl font-bold">

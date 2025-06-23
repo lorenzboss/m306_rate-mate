@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/session";
+import { requireTeamLeader } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 
 export type User = {
@@ -14,9 +14,7 @@ export type User = {
 
 export async function getAllUsers(): Promise<User[]> {
   try {
-    const session = await requireSession();
-
-    if (session?.user?.role !== 2) {
+    if (!(await requireTeamLeader())) {
       throw new Error("You may not access this resource");
     }
 
@@ -30,9 +28,7 @@ export async function getAllUsers(): Promise<User[]> {
 
 export async function deleteUser(userId: string): Promise<void> {
   try {
-    const session = await requireSession();
-
-    if (session?.user?.role !== 2) {
+    if (!(await requireTeamLeader())) {
       throw new Error("Unauthorized");
     }
 

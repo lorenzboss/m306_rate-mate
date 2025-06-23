@@ -1,6 +1,6 @@
 "use client";
 
-import { createAspect } from "@/lib/actions//aspect-actions";
+import { createAspect } from "@/app/actions/aspect-actions";
 import { StepBack } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";

@@ -1,4 +1,4 @@
-import { ReviewWithDetails } from "@/lib/actions/review-actions";
+import { ReviewWithDetails } from "@/app/actions/review-actions";
 import { MessageSquare, Shield, Star } from "lucide-react";
 
 export default function ReviewDetailsModal({

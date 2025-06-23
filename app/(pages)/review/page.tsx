@@ -4,7 +4,7 @@ import {
   createReview,
   getAspects,
   getUsers,
-} from "@/lib/actions/wizard-actions";
+} from "@/app/actions/wizard-actions";
 import {
   AlertCircle,
   ArrowLeft,

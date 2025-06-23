@@ -1,12 +1,12 @@
 "use client";
 
-import AspectCard from "@/components/aspect-card";
-import EditModal from "@/components/edit-modal";
 import {
   deleteAspect,
   editAspect,
   getAllAspects,
-} from "@/lib/actions/aspect-actions";
+} from "@/app/actions/aspect-actions";
+import AspectCard from "@/components/aspect-card";
+import EditModal from "@/components/edit-modal";
 import { Plus, Settings, Star, Target, Users } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";

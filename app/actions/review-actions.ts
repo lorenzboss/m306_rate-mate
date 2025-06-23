@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/session";
+import { requireTeamLeader, requireUser } from "@/lib/session";
 
 export type ReviewWithDetails = {
   ReviewID: string;
@@ -38,7 +38,7 @@ export type ReviewStatistics = {
   leastRatedAspect: string | null;
 };
 
-export async function getAllUserReviews(): Promise<
+export async function getAllUserReviews(targetUserId?: string): Promise<
   | {
       success: true;
       createdReviews: ReviewWithDetails[];
@@ -55,7 +55,16 @@ export async function getAllUserReviews(): Promise<
       return { success: false, error: "Not authenticated" };
     }
 
-    const userId = session.user.id;
+    let userId = session.user.id;
+
+    // Wenn eine andere User ID angefragt wird, prüfe ob der User Team Leader ist
+    if (targetUserId && targetUserId !== session.user.id) {
+      const isTeamLeader = await requireTeamLeader();
+      if (!isTeamLeader) {
+        return { success: false, error: "Insufficient permissions" };
+      }
+      userId = targetUserId;
+    }
 
     // Reviews erstellt vom User
     const createdReviews = await db.review.findMany({
@@ -155,8 +164,14 @@ export async function getAllUserReviews(): Promise<
       });
     };
 
-    const processedCreatedReviews = processReviews(createdReviews, userId);
-    const processedReceivedReviews = processReviews(receivedReviews, userId);
+    const processedCreatedReviews = processReviews(
+      createdReviews,
+      session.user.id,
+    );
+    const processedReceivedReviews = processReviews(
+      receivedReviews,
+      session.user.id,
+    );
 
     return {
       success: true,
@@ -169,7 +184,7 @@ export async function getAllUserReviews(): Promise<
   }
 }
 
-export async function getReviewStatistics(): Promise<
+export async function getReviewStatistics(targetUserId?: string): Promise<
   | {
       success: true;
       statistics: ReviewStatistics;
@@ -185,7 +200,16 @@ export async function getReviewStatistics(): Promise<
       return { success: false, error: "Not authenticated" };
     }
 
-    const userId = session.user.id;
+    let userId = session.user.id;
+
+    // Wenn eine andere User ID angefragt wird, prüfe ob der User Team Leader ist
+    if (targetUserId && targetUserId !== session.user.id) {
+      const isTeamLeader = await requireTeamLeader();
+      if (!isTeamLeader) {
+        return { success: false, error: "Insufficient permissions" };
+      }
+      userId = targetUserId;
+    }
 
     // Alle Ratings für Reviews des Users (sowohl erstellt als auch empfangen)
     const allRatings = await db.rating.findMany({
@@ -318,7 +342,17 @@ export async function getReviewDetails(reviewId: string): Promise<
     }
 
     const userId = session.user.id;
-    if (review.FKOwnerId !== userId && review.FKReceiverId !== userId) {
+    const isTeamLeader = await requireTeamLeader();
+
+    // Zugriffsberechtigung prüfen:
+    // - Eigene Reviews (als Owner oder Receiver)
+    // - Team Leader können alle Reviews einsehen
+    const hasAccess =
+      review.FKOwnerId === userId ||
+      review.FKReceiverId === userId ||
+      isTeamLeader;
+
+    if (!hasAccess) {
       return { success: false, error: "Access denied" };
     }
 
